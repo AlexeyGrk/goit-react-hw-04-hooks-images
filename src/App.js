@@ -11,6 +11,7 @@ import SearchBar from "./components/SearchBar/SearchBar.jsx";
 import StartMessage from "./components/StartMessage/StartMessage";
 const controller = new AbortController();
 const signal = controller.signal;
+let timer;
 export class App extends Component {
   state = {
     inputValue: "",
@@ -90,6 +91,7 @@ export class App extends Component {
     this.setState({
       page: 1,
     });
+    clearTimeout(timer);
   };
 
   handleNextPage = () => {
@@ -97,11 +99,8 @@ export class App extends Component {
       page: this.state.page + 1,
     });
 
-    setTimeout(() => {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: "smooth",
-      });
+    timer = setTimeout(() => {
+      this.scrollTo();
     }, 300);
   };
   handleLargeImages = (e) => {
