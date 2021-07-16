@@ -26,7 +26,6 @@ export class App extends Component {
     this.handleKeyDown();
   }
   componentDidUpdate(prevProps, prevState) {
-    this.scrollTo();
     if (prevState.inputValue !== this.state.inputValue) {
       this.resetPage();
     }
@@ -97,10 +96,13 @@ export class App extends Component {
     this.setState({
       page: this.state.page + 1,
     });
-    window.scrollTo({
-      top: document.documentElement.scrollHeight,
-      behavior: "smooth",
-    });
+
+    setTimeout(() => {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: "smooth",
+      });
+    }, 300);
   };
   handleLargeImages = (e) => {
     if (e.target.nodeName === "IMG") {
