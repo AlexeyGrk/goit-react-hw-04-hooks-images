@@ -30,20 +30,23 @@ export class App extends Component {
     if (prevState.inputValue !== this.state.inputValue) {
       this.resetPage();
     }
+
     if (prevState.page !== this.state.page) {
-      axios
-        .get(
-          `https://pixabay.com/api/?q=${this.state.inputValue}&page=${this.state.page}&key=21657672-6f26057767faea3bb550eec99&image_type=photo&orientation=horizontal&per_page=12`,
-          { signal }
-        )
-        .then((response) =>
-          this.setState((prevState) => ({
-            images: [...prevState.images, ...response.data.hits],
-            isLoading: false,
-          }))
-        )
-        .catch((error) => this.setState({ error }))
-        .finally(() => this.setState({ isLoading: false }));
+      if (this.state.inputValue !== "") {
+        axios
+          .get(
+            `https://pixabay.com/api/?q=${this.state.inputValue}&page=${this.state.page}&key=21657672-6f26057767faea3bb550eec99&image_type=photo&orientation=horizontal&per_page=12`,
+            { signal }
+          )
+          .then((response) =>
+            this.setState((prevState) => ({
+              images: [...prevState.images, ...response.data.hits],
+              isLoading: false,
+            }))
+          )
+          .catch((error) => this.setState({ error }))
+          .finally(() => this.setState({ isLoading: false }));
+      }
     }
   }
   componentWillMount() {
