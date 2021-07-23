@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { Component } from "react";
+import { useState, useEffect } from "react";
 import Loader from "react-loader-spinner";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
@@ -12,155 +12,148 @@ import StartMessage from "./components/StartMessage/StartMessage";
 const controller = new AbortController();
 const signal = controller.signal;
 let timer;
-export class App extends Component {
-  state = {
-    inputValue: "",
-    images: [],
-    selectedImg: null,
-    page: 1,
-    isLoading: false,
-    error: "",
-    showModal: false,
-  };
 
-  componentDidMount() {
-    this.handleKeyDown();
-  }
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.inputValue !== this.state.inputValue) {
-      this.resetPage();
-    }
+const App = () => {
+  const [inputValue, setInputValue] = useState("");
+  const [images, setImages] = useState([]);
+  const [selectedImg, setSelectedImg] = useState(null);
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
-    if (prevState.page !== this.state.page) {
-      if (this.state.inputValue !== "") {
-        axios
-          .get(
-            `https://pixabay.com/api/?q=${this.state.inputValue}&page=${this.state.page}&key=21657672-6f26057767faea3bb550eec99&image_type=photo&orientation=horizontal&per_page=12`,
-            { signal }
-          )
-          .then((response) =>
-            this.setState((prevState) => ({
-              images: [...prevState.images, ...response.data.hits],
-              isLoading: false,
-            }))
-          )
-          .catch((error) => this.setState({ error }))
-          .finally(() => this.setState({ isLoading: false }));
-      }
-    }
-  }
-  componentWillMount() {
-    window.removeEventListener("keydown", this.handleKeyDown);
-  }
-  handleKeyDown = (e) => {
-    window.addEventListener("keydown", (e) => {
-      if (e.code === "Escape") {
-        this.setState({
-          showModal: false,
-        });
-      }
-    });
-  };
-  getItemsGalleryImages = (e) => {
-    e.preventDefault();
-    if (this.state.inputValue === "") {
-      return;
-    }
-    axios
-      .get(
-        `https://pixabay.com/api/?q=${this.state.inputValue}&page=${this.state.page}&key=21657672-6f26057767faea3bb550eec99&image_type=photo&orientation=horizontal&per_page=12`,
-        { signal }
-      )
-      .then((response) =>
-        this.setState({ images: response.data.hits, isLoading: false })
-      )
-      .catch((error) => this.setState({ error }))
-      .finally(() => this.setState({ isLoading: false }));
-
-    this.setState({
-      isLoading: true,
-    });
-  };
-  handleInputValue = (e) => {
-    this.setState({
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  resetPage = () => {
-    this.setState({
-      page: 1,
-    });
-    clearTimeout(timer);
-  };
-
-  handleNextPage = () => {
-    this.setState({
-      page: this.state.page + 1,
-    });
-
-    timer = setTimeout(() => {
-      this.scrollTo();
-    }, 300);
-  };
-  handleLargeImages = (e) => {
-    if (e.target.nodeName === "IMG") {
-      this.setState((prevState) => ({
-        showModal: !prevState.showModal,
-        selectedImg: e.target.dataset.sorce,
-      }));
-    }
-  };
-  handleBackDropClick = (e) => {
-    if (e.currentTarget === e.target) {
-      this.setState({
-        showModal: false,
-      });
-    }
-  };
-  scrollTo = () => {
+  const scrollTo = () => {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: "smooth",
     });
   };
-  render() {
-    const { isLoading, images, selectedImg, error, showModal } = this.state;
-    return (
-      <div className="App">
-        <SearchBar
-          handleInputValue={this.handleInputValue}
-          getItemsGalleryImages={this.getItemsGalleryImages}
-        />
+  const handleBackDropClick = (e) => {
+    if (e.currentTarget === e.target) {
+      setShowModal(false);
+    }
+  };
 
-        {isLoading ? (
-          <Loader
-            type="Puff"
-            color="#00BFFF"
-            height={100}
-            width={100}
-            timeout={3000}
-            style={{ display: "flex", justifyContent: "center" }}
-          />
-        ) : (
-          <ImageGallery
-            images={images}
-            handleLargeImages={this.handleLargeImages}
-            selectedImg={selectedImg}
-          ></ImageGallery>
-        )}
-        {error && <p>Whoops, something went wrong: {error.message}</p>}
-        {(images.length > 0 && (
-          <ButtonLoadMore handleNextPage={this.handleNextPage} />
-        )) || <StartMessage />}
-        {showModal && (
-          <Modal handleBackDropClick={this.handleBackDropClick}>
-            <img src={selectedImg} alt="" />
-          </Modal>
-        )}
-      </div>
-    );
-  }
-}
+  const handleLargeImages = (e) => {
+    if (e.target.nodeName === "IMG") {
+      setShowModal(!showModal);
+      setSelectedImg(e.target.dataset.sorce);
+    }
+  };
+
+  const handleNextPage = () => {
+    setPage((prevPage) => prevPage + 1);
+
+    timer = setTimeout(() => {
+      scrollTo();
+    }, 300);
+  };
+  const resetPage = (e) => {
+    setImages([]);
+
+    setPage(1);
+    clearTimeout(timer);
+  };
+
+  const handleInputValue = (e) => {
+    e.preventDefault();
+
+    setInputValue(e.target.elements.inputValue.value);
+    resetPage();
+  };
+  const handleKeyDown = (e) => {
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Escape") {
+        setShowModal(false);
+      }
+    });
+  };
+
+  // async function fetchGalleryImages(page) {
+  //   const response = await axios.get(
+  //     `https://pixabay.com/api/?q=${inputValue}&page=${page}&key=21657672-6f26057767faea3bb550eec99&image_type=photo&orientation=horizontal&per_page=12`,
+  //     { signal }
+  //   );
+  //   return response;
+  // }
+  // const getItemsGalleryImages = (e) => {
+  //   if (inputValue === "") {
+  //     return;
+  //   }
+
+  //   axios
+  //     .get(
+  //       `https://pixabay.com/api/?q=${inputValue}&page=${page}&key=21657672-6f26057767faea3bb550eec99&image_type=photo&orientation=horizontal&per_page=12`,
+  //       { signal }
+  //     )
+  //     .then(
+  //       (response) => setImages((state) => [...state, ...response.data.hits]),
+
+  //       setIsLoading(false)
+  //     )
+  //     .catch((error) => setError({ error }))
+  //     .finally(() => setIsLoading(false));
+
+  //   setIsLoading(true);
+  // };
+
+  useEffect(() => {
+    if (inputValue === "") {
+      return;
+    }
+
+    const getItemsGalleryImages = () => {
+      axios
+        .get(
+          `https://pixabay.com/api/?q=${inputValue}&page=${page}&key=21657672-6f26057767faea3bb550eec99&image_type=photo&orientation=horizontal&per_page=12`,
+          { signal }
+        )
+        .then(
+          (response) => setImages((state) => [...state, ...response.data.hits]),
+
+          setIsLoading(false)
+        )
+        .catch((error) => setError({ error }))
+        .finally(() => setIsLoading(false));
+
+      setIsLoading(true);
+    };
+
+    getItemsGalleryImages();
+    handleKeyDown();
+  }, [inputValue, page]);
+
+  return (
+    <div className="App">
+      <SearchBar handleInputValue={handleInputValue} resetPage={resetPage} />
+
+      {isLoading ? (
+        <Loader
+          type="Puff"
+          color="#00BFFF"
+          height={100}
+          width={100}
+          timeout={3000}
+          style={{ display: "flex", justifyContent: "center" }}
+        />
+      ) : (
+        <ImageGallery
+          images={images}
+          handleLargeImages={handleLargeImages}
+          selectedImg={selectedImg}
+        ></ImageGallery>
+      )}
+      {error && <p>Whoops, something went wrong: {error.message}</p>}
+      {(images.length > 0 && (
+        <ButtonLoadMore handleNextPage={handleNextPage} />
+      )) || <StartMessage />}
+      {showModal && (
+        <Modal handleBackDropClick={handleBackDropClick}>
+          <img src={selectedImg} alt="" />
+        </Modal>
+      )}
+    </div>
+  );
+};
 
 export default App;

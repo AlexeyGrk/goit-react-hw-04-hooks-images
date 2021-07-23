@@ -3,7 +3,6 @@ import { ButtonLMore, ButtonLMoreContainer } from "./ButtonLoadMore.styled";
 
 export class ButtonLoadMore extends Component {
   render() {
-    console.log(this.props);
     return (
       <>
         <ButtonLMoreContainer>

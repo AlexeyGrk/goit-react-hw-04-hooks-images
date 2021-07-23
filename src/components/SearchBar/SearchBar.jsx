@@ -12,6 +12,7 @@ export class SearchBar extends Component {
         <SearchForm
           handleInput={this.props.handleInputValue}
           getItemsGalleryImages={this.props.getItemsGalleryImages}
+          resetPage={this.props.resetPage}
         ></SearchForm>
       </Searchbar>
     );
