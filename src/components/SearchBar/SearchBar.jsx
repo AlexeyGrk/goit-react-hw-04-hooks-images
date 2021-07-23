@@ -4,8 +4,6 @@ import SearchForm from "../SearchForm/SearchForm";
 import { Searchbar } from "./SearchBar.styled";
 
 export class SearchBar extends Component {
-  state = {};
-
   render() {
     return (
       <Searchbar>

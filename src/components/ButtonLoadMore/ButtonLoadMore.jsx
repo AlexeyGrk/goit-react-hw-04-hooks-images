@@ -7,7 +7,7 @@ export class ButtonLoadMore extends Component {
       <>
         <ButtonLMoreContainer>
           <ButtonLMore onClick={this.props.handleNextPage}>
-            Load More
+            {this.props.isLoading ? "Loading" : "Load More"}
           </ButtonLMore>
         </ButtonLMoreContainer>
       </>

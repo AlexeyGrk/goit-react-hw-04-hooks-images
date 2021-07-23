@@ -60,6 +60,7 @@ const App = () => {
 
     setInputValue(e.target.elements.inputValue.value);
     resetPage();
+    setIsLoading(true);
   };
   const handleKeyDown = (e) => {
     window.addEventListener("keydown", (e) => {
@@ -69,55 +70,28 @@ const App = () => {
     });
   };
 
-  // async function fetchGalleryImages(page) {
-  //   const response = await axios.get(
-  //     `https://pixabay.com/api/?q=${inputValue}&page=${page}&key=21657672-6f26057767faea3bb550eec99&image_type=photo&orientation=horizontal&per_page=12`,
-  //     { signal }
-  //   );
-  //   return response;
-  // }
-  // const getItemsGalleryImages = (e) => {
-  //   if (inputValue === "") {
-  //     return;
-  //   }
-
-  //   axios
-  //     .get(
-  //       `https://pixabay.com/api/?q=${inputValue}&page=${page}&key=21657672-6f26057767faea3bb550eec99&image_type=photo&orientation=horizontal&per_page=12`,
-  //       { signal }
-  //     )
-  //     .then(
-  //       (response) => setImages((state) => [...state, ...response.data.hits]),
-
-  //       setIsLoading(false)
-  //     )
-  //     .catch((error) => setError({ error }))
-  //     .finally(() => setIsLoading(false));
-
-  //   setIsLoading(true);
-  // };
-
   useEffect(() => {
     if (inputValue === "") {
       return;
     }
-
-    const getItemsGalleryImages = () => {
-      axios
-        .get(
+    const getItemsGalleryImages = async () => {
+      try {
+        const response = await axios.get(
           `https://pixabay.com/api/?q=${inputValue}&page=${page}&key=21657672-6f26057767faea3bb550eec99&image_type=photo&orientation=horizontal&per_page=12`,
           { signal }
-        )
-        .then(
-          (response) => setImages((state) => [...state, ...response.data.hits]),
+        );
 
-          setIsLoading(false)
-        )
-        .catch((error) => setError({ error }))
-        .finally(() => setIsLoading(false));
-
-      setIsLoading(true);
+        return response.data;
+      } catch (error) {
+        setError({ error });
+      }
     };
+    getItemsGalleryImages(page, inputValue).then((dataImages) =>
+      setImages(
+        (prevState) => [...prevState, ...dataImages.hits],
+        setIsLoading(false)
+      )
+    );
 
     getItemsGalleryImages();
     handleKeyDown();
@@ -145,7 +119,7 @@ const App = () => {
       )}
       {error && <p>Whoops, something went wrong: {error.message}</p>}
       {(images.length > 0 && (
-        <ButtonLoadMore handleNextPage={handleNextPage} />
+        <ButtonLoadMore isLoading={isLoading} handleNextPage={handleNextPage} />
       )) || <StartMessage />}
       {showModal && (
         <Modal handleBackDropClick={handleBackDropClick}>

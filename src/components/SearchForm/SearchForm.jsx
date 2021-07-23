@@ -10,7 +10,6 @@ export class SearchForm extends Component {
   render() {
     return (
       <Searchform onSubmit={this.props.handleInput}>
-        {/* <Searchform onSubmit={this.props.resetPage}> */}
         <SearchformButton>
           <SearchformButtonLabel>Search</SearchformButtonLabel>
         </SearchformButton>
@@ -21,7 +20,6 @@ export class SearchForm extends Component {
           autocomplete="off"
           placeholder="Search images and photos"
           name="inputValue"
-          // onChange={this.props.handleInput}
         ></SearchformInput>
       </Searchform>
     );
